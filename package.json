@@ -4,6 +4,7 @@
   "description": "",
   "main": "liri.js",
   "dependencies": {
+    "axios": "^0.18.0",
     "dotenv": "^8.0.0",
     "node-spotify-api": "^1.1.1",
     "omdb": "^0.8.0"

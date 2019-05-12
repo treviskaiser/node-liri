@@ -1,4 +1,5 @@
 require("dotenv").config();
+var axios = require("axios");
 var fs = require("fs");
 var request = require("request");
 var keys = require("./key");
@@ -7,8 +8,6 @@ var omdb = require("omdb");
 var spotify = new Spotify(keys.spotify);
 var type = process.argv[2];
 var research = process.argv.splice(3).join(" ");
-
-console.log(research);
 
 function append() {
   fs.appendFile("log.txt", research + ", ", function(err) {});
@@ -34,42 +33,39 @@ function music() {
 }
 
 function concert() {
-  var queryURL =
-    "https://rest.bandsintown.com/artists/" +
-    research +
-    "/events?app_id=codingbootcamp";
-
-  request(queryURL, function(error, response, body) {
-    console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    var concert = JSON.parse(body)[0];
-    console.log("Name of Venue: " + concert.venue.name + "\n");
-    console.log(
-      "Venue Location: " +
-        concert.venue.city +
-        ", " +
-        concert.venue.region +
-        "\n"
-    );
-    var datetime = concert.datetime;
-    var year = datetime.substring(0, 4);
-    var month = datetime.substring(5, 7);
-    var day = datetime.substring(8, 10);
-    console.log("Date of the Event: " + month + "/" + day + "/" + year + "\n");
-    console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
-  });
+  axios
+    .get(
+      "https://rest.bandsintown.com/artists/" +
+        research +
+        "/events?app_id=codingbootcamp"
+    )
+    .then(function(response) {
+      var concert = response.data[0];
+      console.log("Name of Venue: " + concert.venue.name + "\n");
+      console.log(
+        "Venue Location: " +
+          concert.venue.city +
+          ", " +
+          concert.venue.region +
+          "\n"
+      );
+      var datetime = concert.datetime;
+      var year = datetime.substring(0, 4);
+      var month = datetime.substring(5, 7);
+      var day = datetime.substring(8, 10);
+      console.log(
+        "Date of the Event: " + month + "/" + day + "/" + year + "\n"
+      );
+      console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+    });
   append();
 }
 
 function movie() {
-  request("http://www.omdbapi.com/?apikey=trilogy&t=" + research, function(
-    err,
-    response,
-    body
-  ) {
-    if (err) {
-      return console.error(err);
-    } else {
-      var movie = JSON.parse(body);
+  axios
+    .get("http://www.omdbapi.com/?apikey=trilogy&t=" + research)
+    .then(function(response) {
+      var movie = response.data;
       console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
       console.log("Movie Title: " + movie.Title);
       console.log("Year: " + movie.Year);
@@ -80,8 +76,7 @@ function movie() {
       console.log("Plot: " + movie.Plot);
       console.log("Actors: " + movie.Actors);
       console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    }
-  });
+    });
   append();
 }
 
